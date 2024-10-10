@@ -4,9 +4,10 @@ use std::{
 };
 
 fn main() {
-    let pth = "/Users/axbg/Documents/Blogs/shadowed/public/pictures/thumbnails/";
-    let paths =
-        read_dir("/Users/axbg/Documents/Blogs/shadowed/public/pictures/thumbnails").unwrap();
+    let path = "./test";
+    let paths = read_dir(path).unwrap();
+
+    println!("Started execution on path {:?}", path);
 
     let mut v = Vec::new();
     for path in paths {
@@ -31,9 +32,8 @@ fn main() {
             .unwrap_or(0)
     });
 
-    let mut nw = Vec::new();
     let mut ct = 1;
-    let mut is_overwrite = true;
+    let mut upd = 0;
 
     v.iter().for_each(|elem| {
         let nmb = elem
@@ -42,34 +42,31 @@ fn main() {
             .and_then(|s| s.parse::<i32>().ok())
             .unwrap_or(0);
 
+        let mut is_overwrite = false;
         if nmb != ct {
             is_overwrite = true;
         }
 
         let name;
         if is_overwrite {
-            name = ct.to_string()
-                + "."
-                + elem
-                    .clone()
-                    .into_string()
-                    .unwrap()
-                    .split_once(".")
-                    .unwrap()
-                    .1;
+            upd = upd + 1;
+            name = ct.to_string() + "." + elem.to_str().unwrap().split_once(".").unwrap().1;
         } else {
-            name = elem.clone().into_string().unwrap();
+            name = elem.to_os_string().into_string().unwrap();
         }
 
         ct = ct + 1;
-        nw.push(name);
+
+        if is_overwrite {
+            let _ = rename(
+                path.to_owned() + "/" + elem.to_str().unwrap(),
+                path.to_owned() + "/" + &name,
+            );
+
+            println!("\t{:?} --> {:?}", elem, name);
+        }
     });
 
-    for it in v.iter().zip(nw) {
-        let (old, new) = it;
-        rename(
-            pth.to_owned() + old.to_str().unwrap(),
-            pth.to_owned() + &new,
-        );
-    }
+    print!("Finished execution - updated {} ", upd);
+    println!("element{}", if upd != 1 { "s" } else { "" });
 }
