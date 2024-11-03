@@ -1,7 +1,4 @@
-use std::{
-    fs::{read_dir, rename},
-    i32,
-};
+use std::fs::{read_dir, rename};
 
 fn main() {
     let path = "./test";
@@ -47,17 +44,20 @@ fn main() {
             is_overwrite = true;
         }
 
-        let name;
-        if is_overwrite {
-            upd = upd + 1;
-            name = ct.to_string() + "." + elem.to_str().unwrap().split_once(".").unwrap().1;
+        let name = if is_overwrite {
+            format!(
+                "{}.{}",
+                ct,
+                elem.to_str().unwrap().split_once('.').unwrap().1
+            )
         } else {
-            name = elem.to_os_string().into_string().unwrap();
-        }
+            elem.to_os_string().into_string().unwrap()
+        };
 
-        ct = ct + 1;
+        ct += 1;
 
         if is_overwrite {
+            upd += 1;
             let _ = rename(
                 path.to_owned() + "/" + elem.to_str().unwrap(),
                 path.to_owned() + "/" + &name,
