@@ -2,12 +2,11 @@ use std::fs::{read_dir, rename};
 
 fn main() {
     let path = "./test";
-    let paths = read_dir(path).unwrap();
 
     println!("Started execution on path {:?}", path);
 
     let mut v = Vec::new();
-    for path in paths {
+    for path in read_dir(path).unwrap() {
         let val = path.unwrap();
 
         if !val
@@ -39,24 +38,13 @@ fn main() {
             .and_then(|s| s.parse::<i32>().ok())
             .unwrap_or(0);
 
-        let mut is_overwrite = false;
         if nmb != ct {
-            is_overwrite = true;
-        }
-
-        let name = if is_overwrite {
-            format!(
+            let name = format!(
                 "{}.{}",
                 ct,
                 elem.to_str().unwrap().split_once('.').unwrap().1
-            )
-        } else {
-            elem.to_os_string().into_string().unwrap()
-        };
+            );
 
-        ct += 1;
-
-        if is_overwrite {
             upd += 1;
             let _ = rename(
                 path.to_owned() + "/" + elem.to_str().unwrap(),
@@ -65,6 +53,8 @@ fn main() {
 
             println!("\t{:?} --> {:?}", elem, name);
         }
+
+        ct += 1;
     });
 
     print!("Finished execution - updated {} ", upd);
